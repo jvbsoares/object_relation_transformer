@@ -248,7 +248,8 @@ class BoxMultiHeadedAttention(nn.Module):
     Following the paper "Relation Networks for Object Detection" in https://arxiv.org/pdf/1711.11575.pdf
     '''
 
-    def __init__(self, h, d_model, trignometric_embedding=True, legacy_extra_skip=False, dropout=0.1):
+    def __init__(self, h, d_model, trignometric_embedding=1,
+                 legacy_extra_skip=0, dropout=0.1):
         "Take in model size and number of heads."
         super(BoxMultiHeadedAttention, self).__init__()
 
@@ -358,7 +359,7 @@ class RelationTransformerModel(CaptionModel):
 
     def make_model(self, src_vocab, tgt_vocab, N=6,
                    d_model=512, d_ff=2048, h=8, dropout=0.1, 
-                   trignometric_embedding=True, legacy_extra_skip=False):
+                   trignometric_embedding=1, legacy_extra_skip=0):
         "Helper: Construct a model from hyperparameters."
         c = copy.deepcopy
         bbox_attn = BoxMultiHeadedAttention(h, d_model, trignometric_embedding, legacy_extra_skip)
@@ -415,8 +416,9 @@ class RelationTransformerModel(CaptionModel):
                                     nn.Dropout(self.drop_prob_lm))+
                                     ((nn.BatchNorm1d(self.input_encoding_size),) if self.use_bn==2 else ())))
 
-        self.box_trignometric_embedding = getattr(opt, 'box_trignometric_embedding', True)
-        self.legacy_extra_skip = getattr(opt, 'legacy_extra_skip', False)
+        self.box_trignometric_embedding = getattr(
+            opt, 'box_trignometric_embedding', 1)
+        self.legacy_extra_skip = getattr(opt, 'legacy_extra_skip', 0)
 
         tgt_vocab = self.vocab_size + 1
         self.model = self.make_model(

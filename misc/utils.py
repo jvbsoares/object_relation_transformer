@@ -222,7 +222,8 @@ def get_std_opt(model, factor=1, warmup=2000):
     return NoamOpt(model.model.tgt_embed[0].d_model, factor, warmup,
             torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9))
 
-def BoxRelationalEmbedding(f_g, dim_g=64, wave_len=1000, trignometric_embedding= True):
+def BoxRelationalEmbedding(f_g, dim_g=64, wave_len=1000,
+                           trignometric_embedding=1):
     """
     Given a tensor with bbox coordinates for detected objects on each batch image,
     this function computes a matrix for each image
@@ -265,7 +266,7 @@ def BoxRelationalEmbedding(f_g, dim_g=64, wave_len=1000, trignometric_embedding=
 
     position_mat = torch.cat((delta_x, delta_y, delta_w, delta_h), -1)
 
-    if trignometric_embedding == True:
+    if trignometric_embedding:
         feat_range = torch.arange(dim_g / 8).cuda()
         dim_mat = feat_range / (dim_g / 8)
         dim_mat = 1. / (torch.pow(wave_len, dim_mat))
